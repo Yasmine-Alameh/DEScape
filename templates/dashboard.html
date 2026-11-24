@@ -1,0 +1,73 @@
+{% extends "base.html" %}{% load icons %}{% block title %}Dashboard{% endblock %}
+{% block content %}
+<h1>Welcome back, {{ user.username }}!</h1>
+<div class="grid grid-2">
+  <section class="panel" aria-labelledby="adv-h"><h2 id="adv-h">Your adventure</h2>
+    {% if active %}
+      {% if active.position.room %}<p>Current level: <b>Room {{ active.position.room }}: {% for n, r in rooms.items %}{% if n == active.position.room %}{{ r.name }}{% endif %}{% endfor %}</b></p>{% endif %}
+      <div class="progress" aria-label="Overall progress {{ active_state.attempt.percent }} percent"><span style="width:{{ active_state.attempt.percent }}%"></span></div>
+      <p class="small muted">{{ active_state.attempt.percent }}% complete · {{ active.score }} points · saved {{ active.last_active|timesince }} ago</p>
+      <div class="room-track" style="margin:12px 0">{% for r in active_state.rooms %}
+        <div class="room-pill {{ r.status }}"><span class="small muted">Room {{ r.n }}</span><br><b>{{ r.name }}</b><br>
+        <span class="st">{% if r.status == "completed" %}{% icon "check" %} Completed · {{ r.score }} pts{% elif r.status == "available" %}{% icon "play" %} Unlocked · {{ r.solved }}/{{ r.required }}{% else %}{% icon "lock" %} Locked{% endif %}</span></div>{% endfor %}</div>
+      <div class="btn-row"><a class="btn btn-primary" href="{% url 'resume' %}">{% icon "play" %} Resume Adventure</a></div>
+    {% else %}
+      <p>No adventure in progress yet.</p>
+      <div class="room-track" style="margin:12px 0">{% for n, r in rooms.items %}<div class="room-pill {% if n == 1 %}available{% else %}locked{% endif %}"><span class="small muted">Room {{ n }}</span><br><b>{{ r.name }}</b><br><span class="st">{% if n == 1 %}{% icon "play" %} Starts here{% else %}{% icon "lock" %} Locked{% endif %}</span></div>{% endfor %}</div>
+    {% endif %}
+    <h3 style="margin-top:16px">Start New Adventure</h3>
+    <form method="post" action="{% url 'new_adventure' %}" id="new-adv" {% if active %}data-confirm="1"{% endif %}>{% csrf_token %}
+      <fieldset style="border:0;padding:0;margin:0"><legend class="sr-only">Mode</legend>
+      <div class="mode-cards">
+        <label class="mode-card"><input type="radio" name="mode" value="guided" checked><span class="mc-body"><span class="mc-title">{% icon "graduation-cap" %} Guided Mode</span><span class="mc-def">Step-by-step lessons, free hints and relaxed practice. Results are labelled guided practice.</span></span></label>
+        <label class="mode-card"><input type="radio" name="mode" value="challenge"><span class="mc-body"><span class="mc-title">{% icon "zap" %} Challenge Mode</span><span class="mc-def">A 1-hour countdown for the whole game, shorter instructions, and hints cost points. If time runs out you fail and can try again.</span></span></label>
+      </div>
+      </fieldset>
+      <fieldset style="border:0;padding:0;margin:12px 0 0"><legend class="mc-legend">Mission</legend>
+      <div class="mode-cards">
+        <label class="mode-card"><input type="radio" name="direction" value="encrypt" checked><span class="mc-body"><span class="mc-title">{% icon "lock" %} Encrypt mission</span><span class="mc-def">Encrypt the access code with DES (keys K1 to K16), then decrypt the exit code in Room 4.</span></span></label>
+        <label class="mode-card"><input type="radio" name="direction" value="decrypt"><span class="mc-body"><span class="mc-title">{% icon "lock-open" %} Decrypt mission</span><span class="mc-def">Decrypt an intercepted ciphertext (keys K16 down to K1), then prove it by encrypting it again in Room 4.</span></span></label>
+      </div>
+      </fieldset>
+      <div class="btn-row" style="margin-top:10px"><button class="btn btn-teal" type="submit">{% icon "sparkles" %} Start New Adventure</button></div>
+    </form>
+  </section>
+
+  <section class="panel" aria-labelledby="stats-h"><h2 id="stats-h">Your statistics</h2>
+    <div class="grid grid-3">
+      <div class="stat"><b>{{ best_score }}</b><span class="small">Best completed score</span></div>
+      <div class="stat"><b>{{ lifetime_points }}</b><span class="small">Total points</span></div>
+      <div class="stat"><b>{{ completed|length }}</b><span class="small">Completed missions</span></div>
+      <div class="stat"><b>{{ puzzles_solved }}</b><span class="small">Challenges solved</span></div>
+      <div class="stat"><b>{{ hints_total }}</b><span class="small">Hints used</span></div>
+      <div class="stat"><b>{{ history|length }}</b><span class="small">Adventures started</span></div></div>
+    <h3 style="margin-top:14px">Accuracy by DES topic</h3>
+    <div class="topic-list">{% for topic, s in stats %}<div class="topic-row" title="{{ s.solved }} solved, {{ s.wrong }} wrong answers">
+      <div class="topic-head"><span>{{ topic }}</span><b>{% if s.accuracy is not None %}{{ s.accuracy }}%{% else %}<span class="muted">not tried yet</span>{% endif %}</b></div>
+      <div class="bar"><span style="width:{% if s.accuracy is not None %}{{ s.accuracy }}{% else %}0{% endif %}%"></span></div></div>{% endfor %}</div>
+    <p class="small muted">Accuracy = challenges solved ÷ (solved + wrong answers), across all your adventures.</p>
+    <h3>Assessments</h3>
+    <p class="small muted">A short quiz before you play and the same kind of quiz after you escape, so you can see how much you learned.</p>
+    <div class="assess-row">
+      <div class="assess-card"><span class="ac-t">{% icon "clipboard-list" %} Pre-assessment</span>{% if pre %}<b class="ac-score">{{ pre.score }}/{{ pre.total }}</b><a class="btn btn-sm" href="{% url 'assessment_result' pre.pk %}">See my answers</a>{% else %}<a class="btn btn-primary btn-lg" href="{% url 'assessment' 'pre' %}">{% icon "play" %} Take the pre-assessment</a>{% endif %}</div>
+      <div class="assess-card"><span class="ac-t">{% icon "trophy" %} Post-assessment</span>{% if post %}<b class="ac-score">{{ post.score }}/{{ post.total }}</b><a class="btn btn-sm" href="{% url 'assessment_result' post.pk %}">See my answers</a>{% elif completed %}<a class="btn btn-primary btn-lg" href="{% url 'assessment' 'post' %}">{% icon "play" %} Take the post-assessment</a>{% else %}<button class="btn btn-lg" type="button" disabled>{% icon "lock" %} Unlocks after you escape</button>{% endif %}</div>
+    </div>
+    {% if assessment_change is not None %}<p class="small">Change from pre to post: <b>{% if assessment_change >= 0 %}+{% endif %}{{ assessment_change }} percentage points</b></p>{% endif %}
+  </section>
+</div>
+
+<section class="panel"><h2>Badges</h2><div class="badge-grid six">{% for b in badges %}<div class="badge {% if b.earned %}earned{% else %}locked{% endif %}"><span class="bic" aria-hidden="true">{% icon b.icon %}</span><b>{{ b.name }}</b><br><span class="small">{% if b.earned %}Earned {{ b.earned_at|date:"M j" }}{% else %}{{ b.condition }}{% endif %}</span></div>{% endfor %}</div></section>
+
+<section class="panel"><h2>Previous attempts</h2>
+  {% if history %}<div class="table-wrap"><table><tr><th>Started</th><th>Mode</th><th>Status</th><th>Rooms</th><th>Score</th><th>Hints</th><th></th></tr>
+  {% for h in history %}<tr><td>{{ h.a.started_at|date:"M j, H:i" }}</td><td>{{ h.a.label }}</td><td>{{ h.a.get_status_display }}</td><td>{{ h.rooms }}/4</td><td>{{ h.a.score }}</td><td>{{ h.hints }}</td>
+    <td>{% if h.a.status == "active" %}<a href="{% url 'play' h.a.id %}">Resume</a>{% else %}<a href="{% url 'results' h.a.id %}">Results</a>{% endif %}</td></tr>{% endfor %}</table></div>
+  {% else %}<p class="muted">No attempts yet.</p>{% endif %}
+</section>
+
+{% endblock %}
+{% block scripts %}<script>
+document.getElementById("new-adv").addEventListener("submit", function (e) {
+  if (this.dataset.confirm && !confirm("You have an unfinished adventure. Starting a new one closes it (its results stay in your history). Continue?")) e.preventDefault();
+});
+</script>{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "base.html" %}{% load icons static %}
+{% block title %}Learn the cipher{% endblock %}
+{% block back %}{% endblock %}{% block content %}
+<section class="hero">
+  <div class="hero-logo anim" id="hero-logo"><img class="base" src="{% static 'img/descape-logo.png' %}" alt="DEScape logo"><img class="lt d" src="{% static 'img/descape-logo.png' %}" alt=""><img class="lt e" src="{% static 'img/descape-logo.png' %}" alt=""><img class="lt s" src="{% static 'img/descape-logo.png' %}" alt=""><span class="scan"></span></div>
+  <h1 class="wordmark">DEScape</h1>
+  <p class="subtitle">The 16-Round Escape</p>
+  <p class="muted" style="max-width:680px;margin:0 auto 24px">Escape a locked lab by mastering DES: four rooms of real encryption &amp; decryption puzzles, with NOVA guiding you step by step.</p>
+  <div class="btn-row" style="justify-content:center">
+    <a class="btn btn-primary btn-start" id="home-start" href="{% if user.is_authenticated %}{% url 'dashboard' %}{% else %}{% url 'start' %}{% endif %}">{% icon "play" %} Start Playing</a>
+  </div>
+  <p class="press-enter" aria-hidden="true">Press Enter to start</p>
+</section>
+
+
+
+<div class="intro" id="intro" role="dialog" aria-label="DEScape intro" hidden>
+  <div class="grid-floor"></div>
+  <div class="stage">
+    <div class="logo-wrap"><img class="base" src="{% static 'img/descape-logo.png' %}" alt="DEScape"><img class="lt d" src="{% static 'img/descape-logo.png' %}" alt=""><img class="lt e" src="{% static 'img/descape-logo.png' %}" alt=""><img class="lt s" src="{% static 'img/descape-logo.png' %}" alt=""><span class="scan"></span><span class="flash"></span></div>
+    <div class="tag-line"><b>DEScape</b><br>THE 16-ROUND ESCAPE</div>
+    <p class="press-enter intro-press">Press Enter to start</p>
+  </div>
+</div>
+<script src="{% static 'js/intro.js' %}?v={{ asset_v }}"></script>
+<script>
+// Home screen: Enter starts (same as the Start Playing button), once the intro screen is closed.
+document.addEventListener("keydown", function (e) {
+  if (e.key !== "Enter" || e.repeat || e.defaultPrevented) return;
+  const intro = document.getElementById("intro");
+  if (intro && !intro.hidden) return;
+  const t = e.target; if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "A" || t.tagName === "BUTTON")) return;
+  e.preventDefault(); location.href = document.getElementById("home-start").href;
+});
+</script>
+{% endblock %}

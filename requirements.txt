@@ -1,0 +1,3 @@
+Django>=5.2,<7
+# Optional, tests only: independent DES cross-check (the app never uses it)
+pycryptodome>=3.19

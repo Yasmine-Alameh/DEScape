@@ -1,0 +1,132 @@
+{% extends "base.html" %}{% load static icons %}{% block title %}DES Learning Laboratory{% endblock %}{% block mainclass %}lab-main{% endblock %}
+{% block content %}
+<h1>{% icon "microscope" %} DES Learning Laboratory</h1>
+<p class="muted">Type a message or upload a file to encrypt or decrypt it, and trace any block through all 16 rounds.</p>
+<div class="panel lab-form-panel">
+  <form id="lab-form" novalidate>
+    <div class="lab-steps">
+      <section class="lab-step">
+        <h3><span class="lab-n">1</span> What do you want to encrypt or decrypt?</h3>
+        <div class="seg" role="radiogroup" aria-label="Input type">
+          <label><input type="radio" name="lab-kind" value="block" checked><span>One block (16 hex)</span></label>
+          <label><input type="radio" name="lab-kind" value="text"><span>Text (any length)</span></label>
+          <label><input type="radio" name="lab-kind" value="hex"><span>Hex (any length)</span></label>
+          <label><input type="radio" name="lab-kind" value="file"><span>{% icon "file" %} A file</span></label>
+        </div>
+        <div class="lab-in" data-kind="block">
+          <label for="lab-block">Message or ciphertext block (exactly 16 hex digits = 64 bits)</label>
+          <input id="lab-block" class="mono" type="text" autocomplete="off" spellcheck="false" value="0123456789ABCDEF" aria-describedby="lab-block-help">
+          <div class="form-help" id="lab-block-help">Or type 8 characters: <input id="lab-ascii" type="text" maxlength="8" style="width:140px;display:inline-block;padding:4px 8px" class="mono" aria-label="8 characters to convert"> <button type="button" class="btn btn-sm" id="lab-a2h">→ hex</button></div>
+          <label for="lab-vector">Or load a standard test vector</label>
+          <select id="lab-vector"><option value="">Choose a test vector</option>{% for v in vectors %}<option value="{{ forloop.counter0 }}">{{ v.name }}: {{ v.plaintext }} / {{ v.key }} → {{ v.ciphertext }}</option>{% endfor %}</select>
+        </div>
+        <div class="lab-in hidden" data-kind="text">
+          <label for="lab-text">Your message (any length, any characters)</label>
+          <textarea id="lab-text" rows="4" spellcheck="false" placeholder="Type a message to encrypt. To decrypt, choose Hex and paste the ciphertext.">Meet me at the lab at 9!</textarea>
+          <p class="form-help">Text is turned into bytes (UTF-8), cut into 8-byte blocks and padded. To decrypt, paste the ciphertext under <b>Hex (any length)</b>.</p>
+        </div>
+        <div class="lab-in hidden" data-kind="hex">
+          <label for="lab-hexdata">Data in hex (any even number of digits; spaces are fine)</label>
+          <textarea id="lab-hexdata" class="mono" rows="4" spellcheck="false" placeholder="for example 85E813540F0AB405 …"></textarea>
+        </div>
+        <div class="lab-in hidden" data-kind="file">
+          <label for="lab-file">Choose any file (up to 1 MB)</label>
+          <input id="lab-file" type="file">
+          <p class="form-help">Encrypting gives you <b>name.des</b> to download. To get the original back, choose that .des file here and press Decrypt with the same key and mode.</p>
+        </div>
+      </section>
+
+      <section class="lab-step">
+        <h3><span class="lab-n">2</span> The key</h3>
+        <div class="seg" role="radiogroup" aria-label="Key type">
+          <label><input type="radio" name="lab-keykind" value="hex" checked><span>Hex key (16 digits)</span></label>
+          <label><input type="radio" name="lab-keykind" value="password"><span>{% icon "key-round" %} Password</span></label>
+        </div>
+        <div class="lab-key-pw hidden">
+          <label for="lab-pass">Password (any length)</label>
+          <input id="lab-pass" type="text" autocomplete="off" spellcheck="false" placeholder="type a password, for example aub-eece455">
+        </div>
+        <label for="lab-key" class="lab-key-label">DES key (16 hex digits = 64 bits)</label>
+        <div class="lab-keyrow"><input id="lab-key" class="mono" type="text" autocomplete="off" spellcheck="false" value="133457799BBCDFF1">
+          <button type="button" class="btn" id="lab-genkey">{% icon "dices" %} Generate a random key</button></div>
+        <div id="lab-keysteps" class="lab-keysteps hidden" aria-live="polite"></div>
+        <div id="lab-keywarn" class="lab-warn hidden" role="status"></div>
+      </section>
+
+      <section class="lab-step lab-modes hidden" id="lab-modes">
+        <h3><span class="lab-n">3</span> How to handle more than one block</h3>
+        <div class="grid grid-2">
+          <div>
+            <b>Mode of operation</b>
+            <label class="choice"><input type="radio" name="lab-cmode" value="CBC" checked> <span><b>CBC</b> (Cipher Block Chaining): each block is XOR-ed with the previous ciphertext block first, so repeated blocks look different. A random 8-byte IV starts the chain and is stored at the front of the ciphertext.</span></label>
+            <label class="choice"><input type="radio" name="lab-cmode" value="ECB"> <span><b>ECB</b> (Electronic Code Book): every block is encrypted on its own. Equal plaintext blocks give equal ciphertext blocks, which leaks patterns. Shown for learning; avoid it.</span></label>
+          </div>
+          <div>
+            <b>Padding</b>
+            <label class="choice"><input type="checkbox" id="lab-pad" checked> <span><b>PKCS#7 padding</b>: DES only works on whole 8-byte blocks. If n bytes are missing, n bytes of value n are added (a full block of 08 when nothing is missing), and removed again after decryption.</span></label>
+            <p class="small muted">Turn padding off only if your data is already a multiple of 8 bytes.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+    <div class="alert error hidden" id="lab-error" role="alert"></div>
+    <div class="btn-row" style="margin-top:12px">
+      <button class="btn btn-primary" type="submit" data-mode="encrypt">{% icon "lock" %} Encrypt</button>
+      <button class="btn btn-teal" type="submit" data-mode="decrypt">{% icon "lock-open" %} Decrypt</button>
+      <label class="choice" style="margin:0"><input type="checkbox" id="lab-explain" checked> Show explanations</label>
+    </div>
+  </form>
+</div>
+<div id="lab-data-out" class="hidden"><div class="panel"><h2 id="lab-data-h">Result</h2><div id="lab-data"></div></div></div>
+<div id="lab-out" class="hidden">
+  <div class="panel"><h2 id="lab-summary-h">Result</h2><div id="lab-summary"></div></div>
+  <div class="panel"><div class="btn-row" role="tablist" aria-label="Lab views">
+      <button class="btn btn-sm btn-primary" type="button" role="tab" data-tab="rounds" aria-selected="true">16 rounds</button>
+      <button class="btn btn-sm" type="button" role="tab" data-tab="keys" aria-selected="false">Key schedule</button>
+      <button class="btn btn-sm" type="button" role="tab" data-tab="tables" aria-selected="false">DES tables</button></div>
+    <div id="tab-rounds" style="margin-top:12px"></div>
+    <div id="tab-keys" class="hidden" style="margin-top:12px"></div>
+    <div id="tab-tables" class="hidden" style="margin-top:12px"></div>
+  </div>
+</div>
+
+<section class="panel" id="avalanche" aria-labelledby="av-h">
+  <h2 id="av-h">{% icon "waves" %} Avalanche effect</h2>
+  <p>A good cipher hides every pattern: changing <b>one single bit</b> of the message or of the key should change about <b>half</b> of the 64 output bits, and the change should spread quickly through the rounds. Pick a bit, flip it, and watch DES run twice: once with the original values, once with the flipped bit.</p>
+  <div class="av-controls">
+    <fieldset class="av-target"><legend>Flip one bit of the</legend>
+      <label class="choice"><input type="radio" name="av-target" value="message" checked> message</label>
+      <label class="choice"><input type="radio" name="av-target" value="key"> key</label></fieldset>
+    <label class="av-bit">Bit position (1–64)
+      <span class="av-bitrow"><button type="button" class="btn btn-sm" id="av-dec" aria-label="Previous bit">◀</button>
+      <input id="av-bit" type="number" min="1" max="64" value="1" class="mono">
+      <button type="button" class="btn btn-sm" id="av-inc" aria-label="Next bit">▶</button></span></label>
+    <button class="btn btn-primary" type="button" id="av-run">{% icon "waves" %} Flip the bit and run DES</button>
+  </div>
+  <p class="small muted">Uses the message and key from the form above.</p>
+  <div class="alert error hidden" id="av-error" role="alert"></div>
+  <div id="av-out" class="hidden"></div>
+</section>
+
+<section class="panel" id="birthday" aria-labelledby="bd-h">
+  <h2 id="bd-h">{% icon "cake" %} Birthday attack: why a 64-bit block is too small</h2>
+  <div class="grid grid-2">
+    <div>
+      <p><b>The birthday paradox.</b> In a room of only <b>23 people</b>, there is already a 50% chance that two share a birthday, even though there are 365 days. Repeats appear after about <b>√(number of possibilities)</b> tries, not after all of them.</p>
+      <p><b>Applied to DES.</b> A block cipher turns each 64-bit block into one of 2<sup>64</sup> possible outputs. Encrypt enough blocks with the same key and two ciphertext blocks will repeat after about √2<sup>64</sup> = <b>2<sup>32</sup> blocks</b>, which is only about <b>32 GB</b> of data.</p>
+      <p><b>Why it matters.</b> In CBC mode, a repeated ciphertext block leaks the XOR of the two plaintext blocks behind it. The <b>Sweet32</b> attack (2016) used exactly this to recover secret cookies from long HTTPS and VPN connections that still used 64-bit block ciphers (DES/3DES). AES uses <b>128-bit</b> blocks, so repeats only appear after about 2<sup>64</sup> blocks.</p>
+    </div>
+    <div class="bd-try">
+      <h3>Try it with real DES</h3>
+      <p class="small">2<sup>32</sup> blocks is too many for a browser, so we shrink the block: DES encrypts message after message under a random key and we keep only the first <b>n</b> bits of each ciphertext. We stop at the first repeat.</p>
+      <label for="bd-bits">Shortened block size</label>
+      <select id="bd-bits"><option value="8">8 bits (256 possible values)</option><option value="12">12 bits (4,096)</option><option value="16" selected>16 bits (65,536)</option><option value="20">20 bits (about 1 million)</option><option value="24">24 bits (about 16.8 million, slower)</option></select>
+      <div class="btn-row" style="margin-top:10px"><button class="btn btn-teal" type="button" id="bd-run">{% icon "dices" %} Encrypt until a block repeats</button><button class="btn btn-sm" type="button" id="bd-clear">Clear runs</button></div>
+      <div class="alert error hidden" id="bd-error" role="alert"></div>
+      <div id="bd-out" aria-live="polite"></div>
+    </div>
+  </div>
+</section>
+{{ vectors|json_script:"lab-vectors" }}{{ tables|json_script:"lab-tables" }}
+{% endblock %}
+{% block scripts %}<script src="{% static 'js/trace.js' %}?v={{ asset_v }}"></script><script src="{% static 'js/lab.js' %}?v={{ asset_v }}"></script>{% endblock %}

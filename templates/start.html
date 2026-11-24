@@ -1,0 +1,13 @@
+{% extends "base.html" %}{% load icons static %}
+{% block title %}Start playing{% endblock %}
+{% block content %}
+<section class="start-choice">
+  <img class="start-logo" src="{% static 'img/descape-logo.png' %}" alt="DEScape logo">
+  <h1>Ready to escape?</h1>
+  <p class="muted">Your progress, scores and badges are saved to your account.</p>
+  <div class="start-cards">
+    <a class="start-card primary" href="{% url 'register' %}"><span class="sc-ic">{% icon "user-round" %}</span><b>Create an account</b><span>New here? Make an account in a few seconds and start your first adventure.</span></a>
+    <a class="start-card" href="{% url 'login' %}"><span class="sc-ic">{% icon "log-in" %}</span><b>Sign in</b><span>Already have an account? Continue where you left off.</span></a>
+  </div>
+</section>
+{% endblock %}

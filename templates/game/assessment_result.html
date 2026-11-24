@@ -1,0 +1,43 @@
+{% extends "base.html" %}{% load icons %}
+{% block title %}{% if res.kind == "pre" %}Pre{% else %}Post{% endif %}-assessment results{% endblock %}
+{% block content %}
+<div class="panel" style="max-width:820px;margin:16px auto 0">
+  <h1>{% if res.kind == "pre" %}Pre-assessment{% else %}Post-assessment{% endif %} results</h1>
+  <div class="as-score">
+    <div class="as-ring" style="--p:{{ pct }}"><b>{{ res.score }}/{{ res.total }}</b><small>{{ pct }}%</small></div>
+    <p>{% if res.kind == "pre" %}
+      {% if res.score == res.total %}Impressive: you already know the basics. The game will take you much deeper.
+      {% elif pct >= 55 %}A good start. The game will fill in the gaps below.
+      {% else %}No problem at all: this is what the game is for. Every topic below is taught step by step.{% endif %}
+    {% else %}
+      {% if res.score == res.total %}Perfect score. You understand DES from end to end.
+      {% elif pct >= 70 %}Well done. Check the explanations below for the ones you missed.
+      {% else %}Review the explanations below, and replay the rooms for the topics you missed.{% endif %}
+    {% endif %}</p>
+  </div>
+
+  {% if compare %}
+  <h2>Before vs after the game</h2>
+  <p class="muted">Pre-assessment {{ compare.pre.score }}/{{ compare.pre.total }} ({{ compare.pre_pct }}%) → post-assessment {{ res.score }}/{{ res.total }} ({{ compare.post_pct }}%)
+    ({% if compare.change > 0 %}+{{ compare.change }} points, you improved{% elif compare.change == 0 %}no change{% else %}{{ compare.change }} points{% endif %}).</p>
+  <table class="table as-compare"><thead><tr><th>Topic</th><th>Before</th><th>After</th></tr></thead><tbody>
+    {% for r in compare.rows %}<tr><td>{{ r.name }}</td>
+      <td>{% if r.pre_full %}<span class="as-ok">{% icon "check" %}</span>{% elif not r.pre.0 %}<span class="as-bad">{% icon "x" %}</span>{% endif %} {{ r.pre.0 }}/{{ r.pre.1 }}</td>
+      <td>{% if r.post_full %}<span class="as-ok">{% icon "check" %}</span>{% elif not r.post.0 %}<span class="as-bad">{% icon "x" %}</span>{% endif %} {{ r.post.0 }}/{{ r.post.1 }}</td></tr>{% endfor %}
+  </tbody></table>
+  {% endif %}
+
+  <h2>Your answers</h2>
+  <ol class="as-review">
+    {% for q in review %}
+    <li class="{% if q.ok %}ok{% else %}bad{% endif %}">
+      <p class="q"><span class="mark">{% if q.ok %}{% icon "check" %}{% else %}{% icon "x" %}{% endif %}</span><b>{{ q.text }}</b></p>
+      {% if q.ok %}<p>Your answer: <b>{{ q.correct }}</b>. Correct!</p>
+      {% else %}<p>Your answer: <span class="as-bad">{{ q.chosen|default:"(no answer)" }}</span></p><p>Correct answer: <b class="as-ok">{{ q.correct }}</b></p>{% endif %}
+      <p class="why">{{ q.why }}{% if q.slides %} <span class="muted small">(Slide {{ q.slides }})</span>{% endif %}</p>
+    </li>
+    {% endfor %}
+  </ol>
+  <div class="btn-row"><a class="btn btn-primary" href="{{ next_url }}">{{ next_label }}</a></div>
+</div>
+{% endblock %}

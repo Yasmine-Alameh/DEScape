@@ -1,0 +1,61 @@
+{% extends "base.html" %}{% load icons %}
+{% block title %}How to Play{% endblock %}
+{% block content %}
+<h1>How to Play DEScape</h1>
+<p class="panel" style="margin-bottom:16px"><b>Important:</b> DES is studied here because it is historically important and teaches how block ciphers are built. It is <b>not secure</b> for modern use: only 56 of its 64 key bits are effective, which makes exhaustive key search (brute-force attacks) practical.</p>
+
+<div class="grid grid-2">
+  <div class="panel"><h2>The journey</h2>
+    <ol class="steps">
+      <li><span class="step-n">1</span><div><b>Sign in</b><p>Your progress is saved to your account.</p></div></li>
+      <li><span class="step-n">2</span><div><b>Start an adventure</b><p><i>Guided</i>: step-by-step lessons and free hints. <i>Challenge</i>: shorter instructions, recorded as an independent result.</p></div></li>
+      <li><span class="step-n">3</span><div><b>Intro &amp; lobby</b><p>The lab locks down and NOVA explains the mission.</p></div></li>
+      <li><span class="step-n">4</span><div><b>Four rooms</b><p>{% for n, r in rooms.items %}{{ r.name }}{% if not forloop.last %} → {% endif %}{% endfor %}. Before each machine NOVA teaches the DES step; after it, the DES road map shows what comes next.</p></div></li>
+      <li><span class="step-n">5</span><div><b>Escape</b><p>Walk out of the exit and review your results, room by room.</p></div></li>
+    </ol></div>
+  <div class="panel"><h2>Scoring</h2>
+    <table class="score-table"><tr><td>Correct challenge</td><td>up to {{ scoring.base }} points</td></tr>
+      <tr><td>Each wrong answer</td><td>−{{ scoring.wrong }} on that challenge</td></tr>
+      <tr><td>Hints (Challenge mode)</td><td>−{{ scoring.hints.1 }} / −{{ scoring.hints.2 }} / −{{ scoring.hints.3 }}</td></tr>
+      <tr><td>Hints (Guided mode)</td><td>free</td></tr>
+      <tr><td>Room completed</td><td>+{{ scoring.bonus }} bonus</td></tr></table>
+    <ul class="score-notes">
+      <li>A challenge never scores below 0.</li>
+      <li>Badly formatted answers (wrong length, non-hex characters) are explained and never cost points.</li>
+      <li>Points are awarded once per challenge.</li>
+      <li>Speed is never scored; the optional timer only displays your time.</li>
+    </ul></div>
+</div>
+<div class="panel"><h2>Achievements</h2><div class="badge-grid six">{% for code, a in achievements.items %}<div class="badge"><span class="bic">{% icon a.icon %}</span><b>{{ a.name }}</b><span class="small">{{ a.condition }}</span></div>{% endfor %}</div></div>
+<div class="panel controls"><h2>Controls</h2>
+  <div class="ctl-grid">
+    <section class="ctl-group"><h3>{% icon "footprints" %} In the game</h3>
+      <table class="ctl-table">
+        <tr><td><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> <span class="or">or</span> <kbd>←</kbd><kbd>↑</kbd><kbd>→</kbd><kbd>↓</kbd></td><td>Walk</td></tr>
+        <tr><td><kbd>Enter</kbd></td><td>Open the machine you are standing at</td></tr>
+        <tr><td><kbd>H</kbd></td><td>Hint</td></tr>
+        <tr><td><kbd>I</kbd></td><td>Items</td></tr>
+        <tr><td><kbd>M</kbd></td><td>Map</td></tr>
+        <tr><td><kbd>N</kbd></td><td>Notebook</td></tr>
+        <tr><td><kbd>Esc</kbd></td><td>Menu, or close a machine</td></tr>
+        <tr><td><kbd class="ikey">{% icon "volume-2" %}</kbd></td><td>Sound on / off (bottom-right corner)</td></tr>
+      </table></section>
+    <section class="ctl-group"><h3>{% icon "cpu" %} Inside a machine</h3>
+      <table class="ctl-table">
+        <tr><td><kbd>▲</kbd><kbd>▼</kbd></td><td>Turn a dial (or click it and type 0–9 / A–F)</td></tr>
+        <tr><td><kbd>0</kbd> <span class="or">/</span> <kbd>1</kbd></td><td>Type a bit</td></tr>
+        <tr><td><kbd>Tab</kbd></td><td>Move between controls</td></tr>
+        <tr><td><kbd>Enter</kbd> <span class="or">or</span> <kbd>Space</kbd></td><td>Press the selected button</td></tr>
+        <tr><td><kbd class="ikey">{% icon "arrow-right" %}</kbd></td><td>NEXT: check your answer and move on</td></tr>
+        <tr><td><kbd class="ikey">{% icon "book-open" %}</kbd></td><td>Replay the lesson for this machine</td></tr>
+      </table></section>
+  </div>
+  <div class="note-box">{% icon "mouse-pointer-click" %}<p><b>No keyboard needed.</b> You can play everything with a mouse: click the floor to walk and click a machine to use it. On phones and tablets, tap instead and use the on-screen control pad.</p></div>
+  {% if user.is_authenticated %}<a class="btn btn-primary" href="{% url 'dashboard' %}">Go to my dashboard</a>{% else %}<div class="btn-row"><a class="btn btn-primary" href="{% url 'register' %}">{% icon "play" %} Create an account to play</a><a class="btn" href="{% url 'login' %}">I already have an account: sign in</a></div>{% endif %}</div>
+<div class="panel"><h2>Explore further</h2>
+    <p>The DES Lab lets you run DES on any message and key and inspect all 16 rounds. It also has two experiments on how strong (and how weak) DES is:</p>
+    <ul class="feature-list"><li><b>Avalanche effect:</b> flip one bit and watch the difference spread through the rounds.</li>
+      <li><b>Birthday attack:</b> why a 64-bit block starts repeating after about 2³² blocks (Sweet32).</li></ul>
+    <div class="btn-row">{% if user.is_authenticated %}<a class="btn btn-teal" href="{% url 'lab' %}">{% icon "flask-conical" %} Open the DES Lab</a>{% else %}<a class="btn btn-teal" href="{% url 'login' %}?next={% url 'lab' %}">{% icon "flask-conical" %} Sign in to open the DES Lab</a>{% endif %}</div></div>
+
+{% endblock %}

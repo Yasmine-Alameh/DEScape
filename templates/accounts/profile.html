@@ -1,0 +1,31 @@
+{% extends "base.html" %}{% load icons %}{% block title %}My Profile{% endblock %}
+{% block content %}
+<h1>{% icon "settings" %} Settings</h1>
+<div class="profile-grid">
+  <section class="panel" aria-labelledby="prof-h">
+    <h2 id="prof-h">My Profile</h2>
+    <div class="profile-id"><span class="avatar" aria-hidden="true">{{ user.username|slice:":1"|upper }}</span>
+      <div><b style="font-size:1.2rem">{{ user.username }}</b><br><span class="muted small">Student player</span></div></div>
+    <dl class="info-list">
+      <dt>{% icon "user-round" %} Username</dt><dd>{{ user.username }}</dd>
+      <dt>{% icon "mail" %} Email</dt><dd>{% if user.email %}{{ user.email }}{% else %}<span class="muted">not set</span>{% endif %}</dd>
+      <dt>{% icon "calendar" %} Member since</dt><dd>{{ user.date_joined|date:"M j, Y" }}</dd>
+      <dt>{% icon "clock" %} Last sign-in</dt><dd>{% if user.last_login %}{{ user.last_login|date:"M j, Y H:i" }}{% else %}<span class="muted">now</span>{% endif %}</dd>
+      <dt>{% icon "play" %} Adventures started</dt><dd>{{ adventures }}</dd>
+      <dt>{% icon "check" %} Adventures completed</dt><dd>{{ completed }}</dd>
+      <dt>{% icon "star" %} Best score</dt><dd>{{ best_score }}</dd>
+      {% if badges is not None %}<dt>{% icon "graduation-cap" %} Badges earned</dt><dd>{{ badges }} of 6</dd>{% endif %}
+    </dl>
+  </section>
+
+  <section class="panel" aria-labelledby="pw-h">
+    <h2 id="pw-h">{% icon "lock" %} Change password</h2>
+    <form method="post" novalidate>{% csrf_token %}
+      {% if form.non_field_errors %}<ul class="errorlist" role="alert">{% for e in form.non_field_errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      {% for field in form %}<label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}
+        {% if field.errors %}<ul class="errorlist" role="alert">{% for e in field.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}{% endfor %}
+      <div class="btn-row" style="margin-top:14px"><button class="btn btn-primary" type="submit">Change password</button></div>
+    </form>
+  </section>
+</div>
+{% endblock %}
