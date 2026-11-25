@@ -80,7 +80,7 @@ PAGES = [
      "formula": "M = DES_with_keys(K16 … K1)(C)",
      "example": "Decrypting 85E813540F0AB405 with 133457799BBCDFF1 returns 0123456789ABCDEF.",
      "diagram": "C → IP → [K16] → [K15] → … → [K1] → swap → IP⁻¹ → M",
-     "used": "The Final Decryption Chamber.", "lab": "?vector=0&mode=decrypt"},
+     "used": "The Exit Chamber.", "lab": "?vector=0&mode=decrypt"},
     {"key": "security", "title": "DES security limitations", "room": "Room 4",
      "definition": "DES is obsolete. Its 56-bit effective key (2^56 ≈ 7.2 × 10^16 keys) is small enough for exhaustive key search; public efforts found DES keys in days, then hours, by the late 1990s. NIST withdrew DES as a standard.",
      "formula": "Key space 2^56 (DES)  vs  2^128 or more (AES)",

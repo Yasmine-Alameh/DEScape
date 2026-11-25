@@ -34,7 +34,7 @@
       <p class="q"><span class="mark">{% if q.ok %}{% icon "check" %}{% else %}{% icon "x" %}{% endif %}</span><b>{{ q.text }}</b></p>
       {% if q.ok %}<p>Your answer: <b>{{ q.correct }}</b>. Correct!</p>
       {% else %}<p>Your answer: <span class="as-bad">{{ q.chosen|default:"(no answer)" }}</span></p><p>Correct answer: <b class="as-ok">{{ q.correct }}</b></p>{% endif %}
-      <p class="why">{{ q.why }}{% if q.slides %} <span class="muted small">(Slide {{ q.slides }})</span>{% endif %}</p>
+      <p class="why">{{ q.why }}</p>
     </li>
     {% endfor %}
   </ol>

@@ -99,7 +99,7 @@ reachable from the website.
    (recording C and D after each round), the PC-2 bench, pull the forge lever to make K1…K16; the key archive terminal shows every key round.
 6. Room 3 (Round Reactor): XOR gate wiring, S-box grid, P patch panel, Feistel router,
    ignite the reactor core (all 16 rounds, round log with every operation).
-7. Room 4: drag key cartridges into reverse order, the decryption engine, the exit keypad's letter wheels,
+7. Room 4 (Exit Chamber): drag key cartridges into reverse order, the decryption engine, the exit keypad's letter wheels,
    NOVA's security questions → walk out of the exit → escape screen.
 8. Results page (mastered vs needs-practice concepts). Before Room 1 and after the escape, the optional pre/post-assessment
    shows a results page: score, every answer with the correct one and a short explanation, and a before-vs-after table.

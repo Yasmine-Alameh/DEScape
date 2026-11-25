@@ -6,6 +6,7 @@ saved answers, so each result can be reviewed exactly as it was taken.
 The first option in the bank is the correct one; the stored option value is its bank index.
 """
 import random
+import re
 
 from .question_bank import BANK, BY_ID, LEGACY, OBJECTIVES  # noqa: F401
 
@@ -72,20 +73,38 @@ def per_counts(per_objective):
     return out
 
 
+# Explanations in the bank cite their slides; players see them without the slide numbers.
+_WHY_OVERRIDES = {
+    "c3-p06": "IP and IP⁻¹ are inverse tables: the final permutation undoes the initial IP.",
+    "c3-e03": "By the rule L1 = R0: L1 = 3cf03c0f.",
+    "c3-c05": "S-box design criterion 3: if two inputs differ in exactly 1 bit, the outputs must differ in at least 2 bits.",
+}
+_SLIDE_PAREN = re.compile(r"\s*\(slides? [\d, and]+(?: rule)?\)", re.I)
+_SLIDE_LEAD = re.compile(r"(^|(?<=\. ))slides? \d+(?:(?:,| and) \d+)*(?: \([a-z]\))?(?: example)?(?:, criterion (\d+))?:\s*(\w?)", re.I)
+
+
+def clean_why(qid, why):
+    """The explanation with its slide references removed (for display to players)."""
+    if qid in _WHY_OVERRIDES:
+        return _WHY_OVERRIDES[qid]
+    why = _SLIDE_PAREN.sub("", why)
+    why = _SLIDE_LEAD.sub(lambda m: m.group(1) + (f"Criterion {m.group(2)}: " + m.group(3) if m.group(2) else m.group(3).upper()), why)
+    return why.strip()
+
+
 def review(kind, answers):
     """Per-question review: the player's choice, the correct answer and a short explanation."""
     ids, chosen = _answer_map(answers, kind)
     out = []
     for n, qid in enumerate(ids, 1):
-        _id, lo, text, options, why, slides = BY_ID[qid]
+        _id, lo, text, options, why, _slides = BY_ID[qid]
         c = chosen.get(qid)
         try:
             chosen_label = options[int(c)]
         except (TypeError, ValueError, IndexError):
             chosen_label = None
         out.append({"n": n, "objective": lo, "text": text, "chosen": chosen_label,
-                    "correct": options[0], "ok": str(c) == "0", "why": why,
-                    "slides": "" if "Slide" in why else slides})  # don't repeat a slide the explanation already names
+                    "correct": options[0], "ok": str(c) == "0", "why": clean_why(qid, why)})
     return out
 
 

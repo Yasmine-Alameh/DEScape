@@ -15,7 +15,7 @@
     1: { name: "The Hex Gate", accent: "#2fe6c8", a2: "#34e0ff", floorA: "#14263a", floorB: "#172b41", seam: "#0e1b2c", wallTop: "#2f6070", wallFace: "#1b3a4a", wallDark: "#10242f" },
     2: { name: "The Key Vault", accent: "#b48cff", a2: "#ff7ad9", floorA: "#1d1a3b", floorB: "#221e44", seam: "#141130", wallTop: "#55468f", wallFace: "#2e2660", wallDark: "#1c1740" },
     3: { name: "The Round Reactor", accent: "#47f59a", a2: "#34e0ff", floorA: "#122a26", floorB: "#15302b", seam: "#0c1e1b", wallTop: "#2f6b56", wallFace: "#1a3f34", wallDark: "#0f2821" },
-    4: { name: "The Final Decryption Chamber", accent: "#ffb547", a2: "#ff6b7d", floorA: "#271a2e", floorB: "#2c1d33", seam: "#1b1120", wallTop: "#7a4f5e", wallFace: "#432a3a", wallDark: "#2a1824" },
+    4: { name: "The Exit Chamber", accent: "#ffb547", a2: "#ff6b7d", floorA: "#271a2e", floorB: "#2c1d33", seam: "#1b1120", wallTop: "#7a4f5e", wallFace: "#432a3a", wallDark: "#2a1824" },
   };
   W.THEMES = THEMES;
 

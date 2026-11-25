@@ -234,7 +234,7 @@
     const r = S.rooms[2]; if (r.puzzles.find((p) => p.id === "r3_swap").solved) return 1;
     return r.puzzles.filter((p) => p.solved && !p.optional).length / 7;
   }
-  const ROOM_HELLO = { 1: "You are now in the Hex Gate. Follow the yellow arrow.", 2: "You are now in the Key Vault. Follow the yellow arrow.", 3: "You are now in the Round Reactor. Follow the yellow arrow.", 4: "You are now in the Final Decryption Chamber. Follow the yellow arrow." };
+  const ROOM_HELLO = { 1: "You are now in the Hex Gate. Follow the yellow arrow.", 2: "You are now in the Key Vault. Follow the yellow arrow.", 3: "You are now in the Round Reactor. Follow the yellow arrow.", 4: "You are now in the Exit Chamber. Follow the yellow arrow." };
   const DEC = B.direction === "decrypt";  // Decrypt mission: Rooms 1-3 decrypt, Room 4 re-encrypts to check
   const ROOM_INTRO_DEC = {
     1: ["<b>Decrypt mission · Room 1 · The Hex Gate.</b> We intercepted an <b>encrypted</b> message. Let's decrypt it with DES.",
@@ -243,7 +243,7 @@
     3: ["<b>Room 3 · The Round Reactor.</b> It runs the DES round function F. Repair it module by module, then decrypt.",
       "A decryption round is the <b>same round</b> as in encryption: <b>E</b>, <b>⊕</b> round key, <b>S-boxes</b>, <b>P</b>, then the Feistel update.",
       "The only difference: the keys go <b>backwards</b>. Decryption round 1 uses K16, round 2 uses K15, … round 16 uses K1."],
-    4: ["<b>Room 4 · The Final Decryption Chamber.</b> You decrypted the message. Is it really right?",
+    4: ["<b>Room 4 · The Exit Chamber.</b> You decrypted the message. Is it really right?",
       "Proof: <b>encrypt</b> the recovered plaintext with the same key. If we get the intercepted ciphertext back, the decryption was correct.",
       "Load the keys in encryption order, run an encryption round, read the secret message, then answer my last question."],
   };
@@ -257,7 +257,7 @@
     3: ["<b>Room 3 · The Round Reactor.</b> It runs the DES round function F. It's offline, let's repair it module by module.",
       "One round: <b>E</b> expands R from 32 to 48 bits, <b>⊕</b> mixes in the round key, eight <b>S-boxes</b> squeeze 48 bits back to 32, and <b>P</b> scatters them.",
       "Then the <b>Feistel update</b>: new L = old R, new R = old L ⊕ F. Repair every module, then ignite the core for all 16 rounds."],
-    4: ["<b>Room 4 · The Final Decryption Chamber.</b> The exit is sealed with DES ciphertext.",
+    4: ["<b>Room 4 · The Exit Chamber.</b> The exit is sealed with DES ciphertext.",
       "Good news: DES decryption is the <b>same algorithm</b>. The only change: round keys run in <b>reverse</b>, K16 first and K1 last.",
       "Load the keys, run a decryption round, read the exit code from the plaintext, then I have one last question for you."],
   };
@@ -697,7 +697,7 @@
     await say([CB.icon("triangle-alert") + " <b>EMERGENCY LOCKDOWN!</b>",
       "An experiment triggered the lab's cipher locks. Every exit is sealed.",
       "Hello! I'm <b>NOVA</b>, the lab's research assistant. Four security systems control the exit:",
-      "the <b>Hex Gate</b>, the <b>Key Vault</b>, the <b>Round Reactor</b> and the <b>Final Decryption Chamber</b>.",
+      "the <b>Hex Gate</b>, the <b>Key Vault</b>, the <b>Round Reactor</b> and the <b>Exit Chamber</b>.",
       "Each one is protected by <b>DES</b>, a classic block cipher. Learn how it works, and you walk out of here."]);
     clearInterval(flash); W.state.alarm = false;
     CB.api(API + "/intro/", {}).catch(() => {});

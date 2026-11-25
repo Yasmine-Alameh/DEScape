@@ -698,10 +698,3 @@ main.lab-main .small, main.lab-main small { font-size: .92rem; }
 .nbv-row .mono { font-size: 1.25rem; }
 .nbv-row .copy-btn { font-size: 1rem; padding: 6px 12px; }
 
-/* "Press Enter to start" on the home screen and its opening intro */
-.press-enter { text-align: center; margin: 18px 0 0; font-family: var(--mono); letter-spacing: .18em; color: #ffe07a; font-size: 1.05rem; animation: pressBlink 1.6s ease-in-out infinite; }
-.intro .intro-press { opacity: 0; animation: none; }
-.intro.play .intro-press { animation: pressIn .6s ease 2.6s both, pressBlink 1.6s ease-in-out 3.2s infinite; }
-@keyframes pressIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes pressBlink { 50% { opacity: .3; } }
-@media (prefers-reduced-motion: reduce) { .press-enter { animation: none; } }

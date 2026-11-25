@@ -35,7 +35,7 @@ ROOMS = {
         "puzzles": ["r2_parity", "r2_pc1_bit", "r2_split", "r2_shift", "r2_pc2", "r2_cycle"]},
     3: {"name": "The Round Reactor", "badge": "round_master",
         "puzzles": ["r3_expand", "r3_xor", "r3_sbox", "r3_sbox_bonus", "r3_perm", "r3_feistel", "r3_swap"]},
-    4: {"name": "The Final Decryption Chamber", "badge": "graduate",
+    4: {"name": "The Exit Chamber", "badge": "graduate",
         "puzzles": ["r4_order", "r4_round", "r4_code", "r4_verdict"]},
 }
 
@@ -661,7 +661,7 @@ def r3_swap(p, ctx, mode):
 
 
 # ---------------------------------------------------------------------------
-# ROOM 4, The Final Decryption Chamber
+# ROOM 4, The Exit Chamber
 # ---------------------------------------------------------------------------
 
 def r4_order(p, ctx, mode):
